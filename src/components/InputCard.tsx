@@ -51,7 +51,6 @@ export default function InputCard({ input, onChange, onAnalyze, loading }: Input
     input.productName.trim() &&
     input.stockQuantity &&
     input.salesCount &&
-    input.marketDemand &&
     input.productPrice;
 
   return (
@@ -92,17 +91,6 @@ export default function InputCard({ input, onChange, onAnalyze, loading }: Input
           onChange={v => onChange('salesCount', v)}
           min="0"
           hint="Units sold in last period"
-        />
-        <Field
-          label="Market Demand (1–100)"
-          id="marketDemand"
-          type="number"
-          placeholder="e.g. 30"
-          value={input.marketDemand}
-          onChange={v => onChange('marketDemand', v)}
-          min="1"
-          max="100"
-          hint="Consumer demand score out of 100"
         />
         <Field
           label="Your Product Price (₹)"

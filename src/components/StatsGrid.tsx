@@ -5,7 +5,6 @@ interface StatsGridProps {
   result: AnalysisResult | null;
   defaultStock: string;
   defaultSales: string;
-  defaultDemand: string;
 }
 
 interface StatCardProps {
@@ -52,7 +51,7 @@ export default function StatsGrid({ result, defaultStock, defaultSales, defaultD
       <StatCard
         icon={<Activity className="w-5 h-5 text-amber-600" />}
         label="Market Demand"
-        value={defaultDemand ? `${defaultDemand}/100` : '—'}
+        value={result ? `${result.marketDemand}/100` : '—'}
         color="text-slate-800"
         iconBg="bg-amber-50"
       />

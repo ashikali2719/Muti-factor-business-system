@@ -2,7 +2,6 @@ export interface ProductInput {
   productName: string;
   stockQuantity: string;
   salesCount: string;
-  marketDemand: string;
   productPrice: string;
 }
 
@@ -18,6 +17,7 @@ export type DecisionLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export interface AnalysisResult {
   productName: string;
   competitorPrice: number;
+  marketDemand: number;
   confidence: number;
   decisionLevel: DecisionLevel;
   recommendedAction: RecommendedAction;

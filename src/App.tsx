@@ -10,7 +10,6 @@ const DEFAULT_INPUT: ProductInput = {
   productName: '',
   stockQuantity: '',
   salesCount: '',
-  marketDemand: '',
   productPrice: '',
 };
 
@@ -38,7 +37,6 @@ export default function App() {
           productName: input.productName,
           stock: input.stockQuantity,
           sales: input.salesCount,
-          demand: input.marketDemand,
           price: input.productPrice,
         }),
       });
@@ -53,6 +51,7 @@ export default function App() {
       setResult({
         productName: data.productName,
         competitorPrice: data.competitorPrice,
+        marketDemand: data.marketDemand || 50,
         confidence: data.confidence,
         decisionLevel: data.decisionLevel as any,
         recommendedAction: (data.recommendedAction || data.decision || 'DO NOT BUY STOCK NOW') as any,
@@ -82,7 +81,6 @@ export default function App() {
           result={result}
           defaultStock={input.stockQuantity}
           defaultSales={input.salesCount}
-          defaultDemand={input.marketDemand}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">

@@ -51,7 +51,7 @@ export default function StatsGrid({ result, defaultStock, defaultSales, defaultD
       <StatCard
         icon={<Activity className="w-5 h-5 text-amber-600" />}
         label="Market Demand"
-        value={result ? `${result.marketDemand}/100` : '—'}
+        value={result ? `${result.demand}/100` : '—'}
         color="text-slate-800"
         iconBg="bg-amber-50"
       />

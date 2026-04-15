@@ -3,7 +3,7 @@ import { ProductInput } from '../types';
 
 interface InputCardProps {
   input: ProductInput;
-  onChange: (field: keyof ProductInput, value: string) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAnalyze: () => void;
   loading: boolean;
 }
@@ -14,7 +14,7 @@ interface FieldProps {
   type?: string;
   placeholder: string;
   value: string;
-  onChange: (v: string) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   min?: string;
   max?: string;
   hint?: string;
@@ -28,10 +28,11 @@ function Field({ label, id, type = 'text', placeholder, value, onChange, min, ma
       </label>
       <input
         id={id}
+        name={id}
         type={type}
         placeholder={placeholder}
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={onChange}
         min={min}
         max={max}
         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
@@ -69,7 +70,7 @@ export default function InputCard({ input, onChange, onAnalyze, loading }: Input
             id="productName"
             placeholder="e.g. Saree, Laptop, Rice"
             value={input.productName}
-            onChange={v => onChange('productName', v)}
+            onChange={onChange}
           />
         </div>
         <Field
@@ -78,7 +79,7 @@ export default function InputCard({ input, onChange, onAnalyze, loading }: Input
           type="number"
           placeholder="e.g. 50"
           value={input.stockQuantity}
-          onChange={v => onChange('stockQuantity', v)}
+          onChange={onChange}
           min="0"
           hint="Current units in inventory"
         />
@@ -88,7 +89,7 @@ export default function InputCard({ input, onChange, onAnalyze, loading }: Input
           type="number"
           placeholder="e.g. 40"
           value={input.salesCount}
-          onChange={v => onChange('salesCount', v)}
+          onChange={onChange}
           min="0"
           hint="Units sold in last period"
         />
@@ -98,7 +99,7 @@ export default function InputCard({ input, onChange, onAnalyze, loading }: Input
           type="number"
           placeholder="e.g. 1000"
           value={input.productPrice}
-          onChange={v => onChange('productPrice', v)}
+          onChange={onChange}
           min="0"
           hint="Your current selling price"
         />

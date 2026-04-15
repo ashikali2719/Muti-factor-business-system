@@ -16,12 +16,15 @@ export type DecisionLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface AnalysisResult {
   productName: string;
+  stock: number;
+  sales: number;
+  demand: number;
+  yourPrice: number;
   competitorPrice: number;
-  marketDemand: number;
   confidence: number;
   decisionLevel: DecisionLevel;
   recommendedAction: RecommendedAction;
   summary: string;
   insights: string[];
-  yourPrice: number;
+  timestamp: string;
 }

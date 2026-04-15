@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import StatsGrid from './components/StatsGrid';
 import InputCard from './components/InputCard';
 import ResultCard from './components/ResultCard';
+import Charts from './components/Charts';
+import HistoryDashboard from './components/HistoryDashboard';
 import Footer from './components/Footer';
 import { ProductInput, AnalysisResult } from './types';
 
@@ -14,30 +16,48 @@ const DEFAULT_INPUT: ProductInput = {
 };
 
 export default function App() {
-  const [input, setInput] = useState<ProductInput>(DEFAULT_INPUT);
+  const [formData, setFormData] = useState<ProductInput>(DEFAULT_INPUT);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<AnalysisResult[]>([]);
 
-  function handleChange(field: keyof ProductInput, value: string) {
-    setInput(prev => ({ ...prev, [field]: value }));
+  useEffect(() => {
+    const storedHistory = localStorage.getItem('analysisHistory');
+    if (storedHistory) {
+      try {
+        setHistory(JSON.parse(storedHistory));
+      } catch (e) {
+        console.error('Failed to parse history from localStorage', e);
+      }
+    }
+  }, []);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }
+
+  function handleClearHistory() {
+    setHistory([]);
+    localStorage.removeItem('analysisHistory');
   }
 
   async function handleAnalyze() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8090/decision', {
+      const response = await fetch('http://localhost:8095/decision', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          productName: input.productName,
-          stock: input.stockQuantity,
-          sales: input.salesCount,
-          price: input.productPrice,
+          productName: formData.productName,
+          stock: formData.stockQuantity,
+          sales: formData.salesCount,
+          price: formData.productPrice,
         }),
       });
 
@@ -48,18 +68,31 @@ export default function App() {
 
       const data = await response.json();
 
-      setResult({
+      const newResult: AnalysisResult = {
         productName: data.productName,
+        stock: data.stock,
+        sales: data.sales,
+        demand: data.demand,
+        yourPrice: data.yourPrice,
         competitorPrice: data.competitorPrice,
-        marketDemand: data.marketDemand || 50,
         confidence: data.confidence,
         decisionLevel: data.decisionLevel as any,
         recommendedAction: (data.recommendedAction || data.decision || 'DO NOT BUY STOCK NOW') as any,
         summary: data.summary,
         insights: Array.isArray(data.insights) ? data.insights : [],
-        yourPrice: parseFloat(input.productPrice),
-      });
+        timestamp: data.timestamp,
+      };
+
+      setResult(newResult);
       setHasAnalyzed(true);
+
+      // Add to history
+      setHistory(prev => {
+        const updated = [newResult, ...prev].slice(0, 10); // Keep last 10
+        localStorage.setItem('analysisHistory', JSON.stringify(updated));
+        return updated;
+      });
+
       setTimeout(() => {
         document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
@@ -79,14 +112,14 @@ export default function App() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <StatsGrid
           result={result}
-          defaultStock={input.stockQuantity}
-          defaultSales={input.salesCount}
+          defaultStock={formData.stockQuantity}
+          defaultSales={formData.salesCount}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2">
             <InputCard
-              input={input}
+              input={formData}
               onChange={handleChange}
               onAnalyze={handleAnalyze}
               loading={loading}
@@ -119,12 +152,19 @@ export default function App() {
         </div>        </div>
 
         {hasAnalyzed && result && (
+          <>
+            <Charts result={result} />
+            <HistoryDashboard history={history} onClearHistory={handleClearHistory} />
+          </>
+        )}
+
+        {hasAnalyzed && result && (
           <div className="text-center">
             <button
               onClick={() => {
                 setResult(null);
                 setHasAnalyzed(false);
-                setInput(DEFAULT_INPUT);
+                setFormData(DEFAULT_INPUT);
               }}
               className="text-sm text-slate-500 hover:text-slate-700 underline underline-offset-4 transition-colors"
             >

@@ -1,0 +1,48 @@
+# Multi-Factor Business System - Quick Reference
+
+## 🚀 Quick Start
+1. Clone: `git clone https://github.com/ashikali2719/Muti-factor-business-system.git`
+2. Backend: `mvn clean package && mvn jetty:run`
+3. Frontend: `cd project && npm install && npm run dev`
+4. Access: http://localhost:5173
+
+## 📋 Prerequisites
+- Java 17+
+- Node.js 16+
+- Maven 3.6+
+- Git
+
+## 🛠️ Tech Stack
+- Frontend: React 18 + TypeScript + Vite + Tailwind CSS
+- Backend: Java 17 + Jakarta Servlet + Jetty + Maven
+- ML: Apache Commons Math + Linear Regression
+- Scraping: Selenium WebDriver
+- Deployment: Netlify + Azure Container Apps
+
+## 📊 API Endpoints
+- POST /decision - Main analysis endpoint
+- Accepts: productName, stock, sales, price
+- Returns: JSON with prediction and recommendations
+
+## 🎯 Business Logic
+- BUY_MORE_STOCK: High demand + Good confidence
+- REDUCE_PRICE: Overstock + Competitor advantage
+- HOLD_CURRENT: Stable conditions
+- MONITOR_CLOSELY: Low confidence scenarios
+
+## 📈 Key Features
+- AI-powered demand prediction
+- Real-time competitor price tracking
+- Interactive data visualization
+- Historical analysis tracking
+- Confidence-based recommendations
+- Mobile-responsive design
+
+## 🚀 Deployment Options
+1. Netlify (Frontend): Free, one-click deploy
+2. Azure (Full Stack): Zero-cost, auto-scaling
+
+## 📞 Support
+- Repository: https://github.com/ashikali2719/Muti-factor-business-system
+- Documentation: PROJECT_DOCUMENTATION.txt
+- Issues: GitHub Issues

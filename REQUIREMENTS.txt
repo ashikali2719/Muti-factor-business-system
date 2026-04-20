@@ -1,0 +1,146 @@
+# Multi-Factor Business System - Requirements & Dependencies
+
+## SYSTEM REQUIREMENTS
+
+### Minimum Hardware
+- RAM: 4GB
+- Storage: 500MB free space
+- OS: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
+
+### Software Prerequisites
+- Java Development Kit (JDK) 17 or higher
+- Node.js 16 or higher
+- Apache Maven 3.6 or higher
+- Git 2.0 or higher
+
+## DEPENDENCIES
+
+### Frontend Dependencies (project/package.json)
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.3.0",
+    "vite": "^5.4.2"
+  }
+}
+
+### Backend Dependencies (pom.xml)
+- jakarta.servlet:jakarta.servlet-api:5.0.0
+- org.seleniumhq.selenium:selenium-java:4.15.0
+- org.apache.commons:commons-math3:3.6.1
+- io.github.bonigarcia:webdrivermanager:6.1.0
+
+## ENVIRONMENT VARIABLES
+
+### Development
+VITE_BACKEND_URL=http://localhost:8090
+
+### Production (Netlify)
+VITE_BACKEND_URL=https://your-backend-url-here.azurecontainerapps.io
+
+## PORT CONFIGURATION
+
+### Development
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8090
+
+### Production
+- Frontend: https://your-netlify-site.netlify.app
+- Backend: https://your-app-name.region.azurecontainerapps.io
+
+## DATA REQUIREMENTS
+
+### CSV Data Format (data/Products.csv)
+Columns: ProductName,Stock,Sales,Demand,Price,Category
+Format: CSV with headers
+Example:
+ProductName,Stock,Sales,Demand,Price,Category
+Wireless Headphones,50,40,75,2500,Electronics
+Laptop,25,20,45,45000,Electronics
+
+## BUILD COMMANDS
+
+### Frontend
+npm install          # Install dependencies
+npm run dev         # Start development server
+npm run build       # Build for production
+npm run preview     # Preview production build
+
+### Backend
+mvn clean           # Clean build artifacts
+mvn compile         # Compile Java sources
+mvn package         # Create WAR file
+mvn jetty:run       # Start development server
+
+## DEPLOYMENT REQUIREMENTS
+
+### Netlify (Frontend)
+- Build command: npm run build
+- Publish directory: project/dist
+- Environment variables: VITE_BACKEND_URL
+
+### Azure Container Apps (Backend)
+- Docker image required
+- Consumption plan (pay-per-use)
+- Minimum CPU: 0.25 vCPU
+- Minimum RAM: 0.5 GB
+
+## NETWORK REQUIREMENTS
+
+### Development
+- Localhost access on ports 5173, 8090
+- Internet access for web scraping
+
+### Production
+- HTTPS required
+- CORS configuration
+- Firewall rules for Azure services
+
+## SECURITY REQUIREMENTS
+
+- HTTPS enforcement
+- CORS policy configuration
+- Input validation
+- Rate limiting (recommended)
+- Environment variable protection
+
+## MONITORING & LOGGING
+
+- Application logs in console
+- Error handling with try-catch blocks
+- Request/response logging
+- Performance monitoring (optional)
+
+## TESTING REQUIREMENTS
+
+- Manual testing checklist
+- API endpoint testing
+- Frontend-backend integration testing
+- Cross-browser compatibility
+- Mobile responsiveness testing
+
+## MAINTENANCE
+
+- Regular dependency updates
+- Security patches
+- Performance optimization
+- Documentation updates
+- Backup procedures

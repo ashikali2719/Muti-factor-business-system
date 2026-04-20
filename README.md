@@ -9,7 +9,7 @@ A full-stack web application that empowers businesses to make data-driven decisi
 ## 🚀 Quick Deploy Options
 
 ### Option 1: Netlify (Frontend Only - FREE)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/YOUR_USERNAME/multi-factor-business-system)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ashikali2719/Muti-factor-business-system)
 
 **What you get:**
 - ✅ React frontend hosted on Netlify
@@ -36,10 +36,6 @@ Deploy both frontend and backend to Azure using our zero-cost configuration.
 - ✅ CORS configured automatically
 
 **Setup:** Follow `infra/DEPLOYMENT_GUIDE.md`
-
----
-
-## 🎯 Features
 
 ---
 
@@ -310,4 +306,8 @@ For questions or support, please reach out via GitHub Issues or contact the deve
 
 ---
 
+<<<<<<< HEAD
 **Built with ❤️ for smarter business decisions.**
+=======
+**Built with ❤️ for smarter business decisions.**
+>>>>>>> 2738bea4ff33fd9a2c74dd88cb834326ed945a73

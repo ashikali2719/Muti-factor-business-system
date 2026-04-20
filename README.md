@@ -6,6 +6,43 @@ A full-stack web application that empowers businesses to make data-driven decisi
 
 ---
 
+## 🚀 Quick Deploy Options
+
+### Option 1: Netlify (Frontend Only - FREE)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/YOUR_USERNAME/multi-factor-business-system)
+
+**What you get:**
+- ✅ React frontend hosted on Netlify
+- ✅ Free tier (unlimited bandwidth)
+- ✅ Auto-HTTPS and CDN
+- ❌ Backend needs separate hosting
+
+**Setup:**
+1. Click the deploy button above
+2. Connect your GitHub repo
+3. Set build settings:
+   - **Base directory:** `project`
+   - **Build command:** `npm run build`
+   - **Publish directory:** `project/dist`
+4. Add environment variable: `VITE_BACKEND_URL=https://your-backend-url-here`
+
+### Option 2: Azure (Full Stack - FREE)
+Deploy both frontend and backend to Azure using our zero-cost configuration.
+
+**What you get:**
+- ✅ React frontend on Azure Static Web Apps
+- ✅ Java backend on Azure Container Apps
+- ✅ Scales to zero when idle = $0/month
+- ✅ CORS configured automatically
+
+**Setup:** Follow `infra/DEPLOYMENT_GUIDE.md`
+
+---
+
+## 🎯 Features
+
+---
+
 ## 🎯 Features
 
 ### Core Capabilities

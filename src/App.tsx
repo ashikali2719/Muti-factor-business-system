@@ -48,7 +48,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8095/decision', {
+      const response = await fetch('http://localhost:8090/decision', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

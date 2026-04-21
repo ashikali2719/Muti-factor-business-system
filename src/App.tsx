@@ -48,7 +48,8 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8090/decision', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8090';
+      const response = await fetch(`${backendUrl}/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

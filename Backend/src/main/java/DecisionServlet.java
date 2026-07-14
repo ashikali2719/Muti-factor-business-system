@@ -4,66 +4,100 @@ import java.io.*;
 import java.time.Instant;
 
 public class DecisionServlet extends HttpServlet {
+
     private static final int FALLBACK_DEMAND = 50;
-    private DemandService demandService;
+
     private MarketPriceService marketPriceService;
     private DecisionEngine engine;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        String csvPath = System.getProperty("user.dir") + File.separator + "data" + File.separator + "Products.csv";
-        demandService = new DemandService(csvPath);
         marketPriceService = new MarketPriceService();
         engine = new DecisionEngine();
-        System.out.println("DemandService initialized with " + demandService.getLoadedRecordCount() + " records.");
+        System.out.println("DecisionServlet initialized successfully.");
     }
 
-    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
         response.setStatus(200);
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Add CORS headers
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
         response.setContentType("application/json");
 
-        String productName = request.getParameter("productName");
-        if (productName == null || productName.trim().isEmpty()) {
-            sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "productName is required");
-            return;
-        }
-
-        int stock = parseIntOrDefault(request.getParameter("stock"), 0);
-        int sales = parseIntOrDefault(request.getParameter("sales"), 0);
-        double price = parseDoubleOrDefault(request.getParameter("price"), 0.0);
-
-        double competitorPrice;
         try {
-            competitorPrice = marketPriceService.getFinalPrice(productName);
+            String productName = request.getParameter("productName");
+
+            if (productName == null || productName.trim().isEmpty()) {
+                sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "productName is required");
+                return;
+            }
+
+            int stock = parseIntOrDefault(request.getParameter("stock"), 0);
+            int sales = parseIntOrDefault(request.getParameter("sales"), 0);
+            double price = parseDoubleOrDefault(request.getParameter("price"), 0.0);
+
+            double competitorPrice;
+
+            try {
+                competitorPrice = marketPriceService.getFinalPrice(productName);
+            } catch (Exception e) {
+                System.out.println("Scraping failed: " + e.getMessage());
+                competitorPrice = 0.0;
+            }
+
+            PythonMLService mlService = new PythonMLService();
+
+            double predictedDemand = mlService.predictDemand(
+                    stock,
+                    sales,
+                    sales,
+                    price,
+                    0,
+                    competitorPrice
+            );
+
+            int demand = (int) Math.round(predictedDemand);
+
+            if (demand < 0) {
+                demand = FALLBACK_DEMAND;
+            }
+
+            demand = Math.max(0, Math.min(100, demand));
+
+            Product product = new Product(productName, stock, sales, demand, price);
+            DecisionResult result = engine.process(product, competitorPrice);
+
+            String timestamp = Instant.now().toString();
+
+            PrintWriter out = response.getWriter();
+
+            out.println(buildJsonResponse(
+                    productName,
+                    stock,
+                    sales,
+                    demand,
+                    price,
+                    competitorPrice,
+                    result,
+                    timestamp
+            ));
+
         } catch (Exception e) {
-            System.err.println("Scraping failed for '" + productName + "': " + e.getMessage());
-            competitorPrice = 0.0;
+            response.setStatus(500);
+            PrintWriter out = response.getWriter();
+            out.println("{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
         }
-
-        int demand = calculateDemandScore(stock, sales, price, competitorPrice);
-        if (demand < 0) {
-            demand = FALLBACK_DEMAND;
-        }
-
-        Product product = new Product(productName, stock, sales, demand, price);
-        DecisionEngine engine = new DecisionEngine();
-        DecisionResult result = engine.process(product, competitorPrice);
-
-        String timestamp = Instant.now().toString();
-
-        PrintWriter out = response.getWriter();
-        out.println(buildJsonResponse(productName, stock, sales, demand, price, competitorPrice, result, timestamp));
     }
 
     private void sendJsonError(HttpServletResponse response, int status, String message) throws IOException {
@@ -74,9 +108,7 @@ public class DecisionServlet extends HttpServlet {
 
     private int parseIntOrDefault(String value, int fallback) {
         try {
-            if (value == null || value.trim().isEmpty()) {
-                return fallback;
-            }
+            if (value == null || value.trim().isEmpty()) return fallback;
             return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
             return fallback;
@@ -85,35 +117,24 @@ public class DecisionServlet extends HttpServlet {
 
     private double parseDoubleOrDefault(String value, double fallback) {
         try {
-            if (value == null || value.trim().isEmpty()) {
-                return fallback;
-            }
+            if (value == null || value.trim().isEmpty()) return fallback;
             return Double.parseDouble(value.trim());
         } catch (NumberFormatException e) {
             return fallback;
         }
     }
 
-    private int calculateDemandScore(int stock, int sales, double price, double competitorPrice) {
-        if (stock <= 0) {
-            return sales > 0 ? 100 : 0;
-        }
+    private String buildJsonResponse(String productName,
+                                     int stock,
+                                     int sales,
+                                     int demand,
+                                     double yourPrice,
+                                     double competitorPrice,
+                                     DecisionResult result,
+                                     String timestamp) {
 
-        int demand = (int) Math.round(Math.min(100, (sales / (double) stock) * 100));
-
-        if (competitorPrice > 0) {
-            if (price < competitorPrice) {
-                demand = Math.min(100, demand + 10);
-            } else if (price > competitorPrice) {
-                demand = Math.max(0, demand - 10);
-            }
-        }
-
-        return Math.max(0, Math.min(100, demand));
-    }
-
-    private String buildJsonResponse(String productName, int stock, int sales, int demand, double yourPrice, double competitorPrice, DecisionResult result, String timestamp) {
         StringBuilder builder = new StringBuilder();
+
         builder.append("{");
         builder.append("\"productName\":\"").append(escapeJson(productName)).append("\",");
         builder.append("\"stock\":").append(stock).append(",");
@@ -131,27 +152,26 @@ public class DecisionServlet extends HttpServlet {
         builder.append("\"insights\":[");
 
         boolean first = true;
+
         for (String insight : result.getInsights()) {
-            if (!first) {
-                builder.append(",");
-            }
+            if (!first) builder.append(",");
             builder.append("\"").append(escapeJson(insight)).append("\"");
             first = false;
         }
 
         builder.append("]");
         builder.append("}");
+
         return builder.toString();
     }
 
     private String escapeJson(String value) {
-        if (value == null) {
-            return "";
-        }
+        if (value == null) return "";
+
         return value.replace("\\", "\\\\")
-                    .replace("\"", "\\\"")
-                    .replace("\n", "\\n")
-                    .replace("\r", "\\r")
-                    .replace("\t", "\\t");
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }

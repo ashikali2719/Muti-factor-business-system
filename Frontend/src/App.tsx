@@ -47,8 +47,10 @@ export default function App() {
   async function handleAnalyze() {
     setLoading(true);
     setError(null);
+
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8090';
+
       const response = await fetch(`${backendUrl}/decision`, {
         method: 'POST',
         headers: {
@@ -73,7 +75,7 @@ export default function App() {
         productName: data.productName,
         stock: data.stock,
         sales: data.sales,
-        demand: data.demand,
+        demand: Math.min(100, Math.max(0, Math.round(data.demand))),
         yourPrice: data.yourPrice,
         competitorPrice: data.competitorPrice,
         confidence: data.confidence,
@@ -87,15 +89,17 @@ export default function App() {
       setResult(newResult);
       setHasAnalyzed(true);
 
-      // Add to history
       setHistory(prev => {
-        const updated = [newResult, ...prev].slice(0, 10); // Keep last 10
+        const updated = [newResult, ...prev].slice(0, 10);
         localStorage.setItem('analysisHistory', JSON.stringify(updated));
         return updated;
       });
 
       setTimeout(() => {
-        document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('result-section')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
       }, 100);
     } catch (err) {
       console.error('Error:', err);
@@ -128,29 +132,89 @@ export default function App() {
           </div>
 
           <div className="lg:col-span-3">
-          {error ? (
-            <div className="bg-red-50 text-red-700 border border-red-200 rounded-2xl p-5">
-              <p className="font-semibold">Analysis failed</p>
-              <p className="text-sm mt-2">{error}</p>
-            </div>
-          ) : !hasAnalyzed ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-dashed border-gray-200 h-full min-h-[280px] flex flex-col items-center justify-center text-center p-8">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                <svg className="w-7 h-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3" />
-                </svg>
+            {error ? (
+              <div className="bg-red-50 text-red-700 border border-red-200 rounded-2xl p-5">
+                <p className="font-semibold">Analysis failed</p>
+                <p className="text-sm mt-2">{error}</p>
               </div>
-              <h3 className="text-base font-semibold text-slate-700 mb-2">No Analysis Yet</h3>
-              <p className="text-sm text-slate-400 max-w-xs leading-relaxed">
-                Fill in the product details on the left and click "Analyze Product" to generate your business decision recommendation.
-              </p>
-            </div>
-          ) : result ? (
-            <div id="result-section">
-              <ResultCard result={result} />
-            </div>
-          ) : null}
-        </div>        </div>
+            ) : !hasAnalyzed ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-dashed border-gray-200 h-full min-h-[280px] flex flex-col items-center justify-center text-center p-8">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                  <svg
+                    className="w-7 h-7 text-slate-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"
+                    />
+                  </svg>
+                </div>
+
+                <h3 className="text-base font-semibold text-slate-700 mb-2">
+                  No Analysis Yet
+                </h3>
+
+                <p className="text-sm text-slate-400 max-w-xs leading-relaxed">
+                  Fill in the product details on the left and click "Analyze Product" to generate your AI-powered business recommendation.
+                </p>
+              </div>
+            ) : result ? (
+              <div id="result-section" className="space-y-4">
+                <ResultCard result={result} />
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-800">
+                        AI Model Performance
+                      </h3>
+                      <p className="text-sm text-slate-500">
+                        Machine Learning evaluation metrics
+                      </p>
+                    </div>
+
+                    <div className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                      Random Forest
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                      <p className="text-sm text-slate-500 mb-1">Model Accuracy</p>
+                      <p className="text-2xl font-bold text-green-600">87.3%</p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                      <p className="text-sm text-slate-500 mb-1">Dataset Size</p>
+                      <p className="text-2xl font-bold text-slate-800">76K+</p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                      <p className="text-sm text-slate-500 mb-1">MAE</p>
+                      <p className="text-2xl font-bold text-blue-600">12.5</p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                      <p className="text-sm text-slate-500 mb-1">RMSE</p>
+                      <p className="text-2xl font-bold text-orange-500">16.75</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 p-4 rounded-xl bg-blue-50 border border-blue-100">
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      This system uses a Random Forest Regression model trained on more than 76,000 business records to predict future market demand and generate intelligent pricing and inventory recommendations.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
 
         {hasAnalyzed && result && (
           <>

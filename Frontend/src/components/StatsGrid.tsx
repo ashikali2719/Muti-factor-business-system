@@ -22,15 +22,25 @@ function StatCard({ icon, label, value, color, iconBg }: StatCardProps) {
         {icon}
       </div>
       <div>
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</p>
-        <p className={`text-xl font-bold ${color} mt-0.5`}>{value}</p>
+        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+          {label}
+        </p>
+        <p className={`text-xl font-bold ${color} mt-0.5`}>
+          {value}
+        </p>
       </div>
     </div>
   );
 }
 
-export default function StatsGrid({ result, defaultStock, defaultSales, defaultDemand }: StatsGridProps) {
-  const competitorPrice = result ? `₹${result.competitorPrice.toLocaleString()}` : '—';
+export default function StatsGrid({ result, defaultStock, defaultSales }: StatsGridProps) {
+  const competitorPrice = result
+    ? `₹${Number(result.competitorPrice).toLocaleString()}`
+    : '—';
+
+  const predictedDemand = result
+    ? `${Math.min(100, Math.max(0, Math.round(result.demand)))}/100`
+    : '—';
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -41,6 +51,7 @@ export default function StatsGrid({ result, defaultStock, defaultSales, defaultD
         color="text-slate-800"
         iconBg="bg-sky-50"
       />
+
       <StatCard
         icon={<TrendingUp className="w-5 h-5 text-emerald-600" />}
         label="Sales Count"
@@ -48,13 +59,15 @@ export default function StatsGrid({ result, defaultStock, defaultSales, defaultD
         color="text-slate-800"
         iconBg="bg-emerald-50"
       />
+
       <StatCard
         icon={<Activity className="w-5 h-5 text-amber-600" />}
-        label="Market Demand"
-        value={result ? `${result.demand}/100` : '—'}
+        label="AI Predicted Demand"
+        value={predictedDemand}
         color="text-slate-800"
         iconBg="bg-amber-50"
       />
+
       <StatCard
         icon={<DollarSign className="w-5 h-5 text-rose-600" />}
         label="Competitor Price"

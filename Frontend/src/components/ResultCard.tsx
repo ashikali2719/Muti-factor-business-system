@@ -13,6 +13,12 @@ export default function ResultCard({ result }: ResultCardProps) {
   const actionStyle = getActionStyle(result.recommendedAction);
   const levelStyle = getLevelStyle(result.decisionLevel);
 
+  const normalizedDemand = Math.min(100, Math.max(0, Math.round(result.demand)));
+
+  const fixedSummary = result.summary
+    ? result.summary.replace(/Demand score is\s*\d+\/100/i, `Demand score is ${normalizedDemand}/100`)
+    : `Decision: ${result.recommendedAction}. Demand score is ${normalizedDemand}/100.`;
+
   return (
     <div className="space-y-4 animate-fadeIn">
       <div className={`bg-white rounded-2xl shadow-sm border ${actionStyle.border} p-6`}>
@@ -20,33 +26,64 @@ export default function ResultCard({ result }: ResultCardProps) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <ClipboardList className="w-4 h-4 text-slate-400" />
-              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Analysis Result</span>
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                Analysis Result
+              </span>
             </div>
             <h2 className="text-lg font-bold text-slate-800">{result.productName}</h2>
           </div>
+
           <div className={`px-4 py-2 rounded-xl ${actionStyle.badge} text-white text-sm font-bold tracking-wide shadow-sm`}>
             {result.recommendedAction}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
           <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">Competitor Price</p>
-            <p className="text-base font-bold text-slate-800">₹{result.competitorPrice.toLocaleString()}</p>
+            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">
+              Competitor Price
+            </p>
+            <p className="text-base font-bold text-slate-800">
+              ₹{Number(result.competitorPrice).toLocaleString()}
+            </p>
           </div>
+
           <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">Your Price</p>
-            <p className="text-base font-bold text-slate-800">₹{result.yourPrice.toLocaleString()}</p>
+            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">
+              Your Price
+            </p>
+            <p className="text-base font-bold text-slate-800">
+              ₹{Number(result.yourPrice).toLocaleString()}
+            </p>
           </div>
+
           <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">Confidence</p>
-            <p className="text-base font-bold text-slate-800">{result.confidence}%</p>
+            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">
+              AI Demand
+            </p>
+            <p className="text-base font-bold text-slate-800">
+              {normalizedDemand}/100
+            </p>
           </div>
+
+          <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">
+              Confidence
+            </p>
+            <p className="text-base font-bold text-slate-800">
+              {result.confidence}%
+            </p>
+          </div>
+
           <div className={`rounded-xl p-3 border ${levelStyle.bg}`}>
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">Decision Level</p>
+            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-1">
+              Decision Level
+            </p>
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${levelStyle.dot}`} />
-              <p className={`text-base font-bold ${levelStyle.text}`}>{result.decisionLevel}</p>
+              <p className={`text-base font-bold ${levelStyle.text}`}>
+                {result.decisionLevel}
+              </p>
             </div>
           </div>
         </div>
@@ -57,13 +94,21 @@ export default function ResultCard({ result }: ResultCardProps) {
 
         <div className={`flex items-start gap-3 p-4 rounded-xl ${actionStyle.bg} border ${actionStyle.border}`}>
           <AlertCircle className={`w-4 h-4 mt-0.5 shrink-0 ${actionStyle.text}`} />
-          <p className={`text-sm leading-relaxed ${actionStyle.text}`}>{result.summary}</p>
+          <p className={`text-sm leading-relaxed ${actionStyle.text}`}>
+            {fixedSummary}
+          </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <PriceComparison yourPrice={result.yourPrice} competitorPrice={result.competitorPrice} />
-        <BusinessInsight insights={result.insights} summary={result.summary} />
+        <PriceComparison
+          yourPrice={result.yourPrice}
+          competitorPrice={result.competitorPrice}
+        />
+        <BusinessInsight
+          insights={result.insights}
+          summary={fixedSummary}
+        />
       </div>
     </div>
   );

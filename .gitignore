@@ -23,3 +23,6 @@ dist-ssr
 *.sw?
 
 .env
+
+ML/random_forest_model.pkl
+*.pkl
